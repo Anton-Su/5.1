@@ -42,4 +42,36 @@ class DataTxtSource(private val context: Context) {
         }
     }
 
+    suspend fun getById(id: Long): RepositoryItem? {
+        return withContext(Dispatchers.IO) {
+            val dir = context.filesDir
+            val file = dir.listFiles()?.firstOrNull { it.extension == "txt" && it.nameWithoutExtension.startsWith("${id}_") }
+            file?.let {
+                val text = it.readText()
+                val nameNoExt = it.nameWithoutExtension
+                val fileName = nameNoExt.substringAfter("_")
+                RepositoryItem(fileName = fileName, text = text, timestamp = id)
+            }
+        }
+    }
+
+    suspend fun updateItem(id: Long, newTitle: String, newText: String): RepositoryItem? {
+        return withContext(Dispatchers.IO) {
+            val dir = context.filesDir
+            val file = dir.listFiles()?.firstOrNull { it.extension == "txt" && it.nameWithoutExtension.startsWith("${id}_") }
+            file?.let {
+                // preserve timestamp in filename, update title if changed
+                val safeTitle = if (newTitle.isBlank()) "untitled" else newTitle.replace(" ", "_")
+                val newFileName = "${id}_${safeTitle}.txt"
+                val newFile = File(dir, newFileName)
+                it.writeText(newText)
+                if (it.name != newFile.name) {
+                    // rename
+                    it.renameTo(newFile)
+                }
+                RepositoryItem(fileName = safeTitle, text = newText, timestamp = id)
+            }
+        }
+    }
+
 }

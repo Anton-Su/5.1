@@ -11,8 +11,10 @@ import com.example.a51.ui.theme.AddItemUseCase
 import com.example.a51.ui.theme.DataTxtSource
 import com.example.a51.ui.theme.DeleteItemUseCase
 import com.example.a51.ui.theme.GetAllUseCase
+import com.example.a51.ui.theme.GetByIdUseCase
 import com.example.a51.ui.theme.Navigation
 import com.example.a51.ui.theme.RepositoryImpl
+import com.example.a51.ui.theme.UpdateItemUseCase
 import com.example.a51.ui.theme._51Theme
 
 class MainActivity : ComponentActivity() {
@@ -23,7 +25,9 @@ class MainActivity : ComponentActivity() {
         val getTodosUseCase = GetAllUseCase(repository)
         val addTodoUseCase = AddItemUseCase(repository)
         val deleteTodoUseCase = DeleteItemUseCase(repository)
-        val viewModel = ReworkViewModel(getTodosUseCase, addTodoUseCase, deleteTodoUseCase)
+        val getByIdUseCase = GetByIdUseCase(repository)
+        val updateItemUseCase = UpdateItemUseCase(repository)
+        val viewModel = ReworkViewModel(getTodosUseCase, addTodoUseCase, deleteTodoUseCase, getByIdUseCase, updateItemUseCase)
         enableEdgeToEdge()
         setContent {
             _51Theme {
@@ -35,8 +39,8 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
 
+}
 
 
 //@Preview(showBackground = true)

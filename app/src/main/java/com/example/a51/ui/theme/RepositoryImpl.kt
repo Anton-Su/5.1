@@ -31,4 +31,23 @@ class RepositoryImpl(private val dataSource: DataTxtSource): Repository {
         repos = repos?.filter { it != item }?.toMutableList()
         return repos ?: emptyList()
     }
+
+    override suspend fun getById(id: Long): RepositoryItem? {
+        ensureLoaded()
+        // Try to find in memory first
+        val found = repos?.firstOrNull { it.timestamp == id }
+        if (found != null) return found
+        // fallback to disk
+        return dataSource.getById(id)
+    }
+
+    override suspend fun updateItem(id: Long, newTitle: String, newText: String): List<RepositoryItem> {
+        ensureLoaded()
+        val updatedItem = dataSource.updateItem(id, newTitle, newText)
+        repos = repos?.map {
+            if (it.timestamp == id) updatedItem ?: it else it
+        }?.toMutableList() ?: updatedItem?.let { mutableListOf(it) }
+        repos = repos?.sortedByDescending { it.timestamp }?.toMutableList()
+        return repos ?: emptyList()
+    }
 }
